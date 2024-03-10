@@ -1,6 +1,5 @@
 import pandas as pd
 
-
 class RPQ:
     def __init__ (self, data_set : int):
         name = "data." + str(data_set)
@@ -47,7 +46,7 @@ class RPQ:
 
     def print_order(self, order):
         print("Default order:")
-        
+
         for i in order:
             print(order[i]+1, end = " ")
 
@@ -55,6 +54,8 @@ class RPQ:
         # print("Order: ", *order, sep=' ')
         
 
+    def find_optimal_order(self):
+        pass
     
 
 if __name__ == "__main__":
