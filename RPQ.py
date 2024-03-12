@@ -27,16 +27,19 @@ class RPQ:
         self.dataframe = pd.DataFrame(data, columns = ["r", "p", "q"])
 
 
-    def calculate_Cmax(self):
+    def calculate_Cmax(self, order = None):
         """
         s (czas rozpoczęcia operacji) = max{r,t}, gdzie
         t = czas zakończenia poprzedniej operacji,
         r = czas dojazdu aktualnej operacji
         """
 
+        if order == None:
+            order = self.order
+
         t = 0
         Cmax = 0
-        for i in self.order:
+        for i in order:
             t = max(self.dataframe['r'][i], t) + self.dataframe['p'][i]
 
             if (t + self.dataframe['q'][i]) > Cmax:
@@ -44,7 +47,10 @@ class RPQ:
 
         self.Cmax = Cmax
 
-        print(f"Cmax = {Cmax}")
+        if order == None:
+            print(f"Cmax = {Cmax}")
+
+        return Cmax
 
 
     def print_order(self, order):
@@ -68,6 +74,8 @@ class RPQ:
             calculated_order.append(r)
     
         self.calculated_order = calculated_order
+
+        return calculated_order
     
     def sortRQ(self):
         sorted_by_r = self.dataframe.sort_values(by = ['r'])
@@ -89,7 +97,42 @@ class RPQ:
 
 
         self.calculated_order = new_order
+    
+
+    def experimental_permutations_algorithm(self):
+        # Complexity - O(n^3)
+
+        new_order = self.sortR()
+
+        actual_Cmax = self.calculate_Cmax(new_order)
+
+        #print(self.dataframe['r'][0])
+        for _ in range(len(new_order)):
+            for i in range(len(new_order[0:-1])):
+                new_order[i], new_order[i+1] = new_order[i+1], new_order[i]
+                new_Cmax = self.calculate_Cmax(new_order)
+
+                if new_Cmax > actual_Cmax:
+                    new_order[i], new_order[i+1] = new_order[i+1], new_order[i]
+                else:
+                    actual_Cmax = new_Cmax
+
+
+    
+
+
         
+        print(self.calculate_Cmax(new_order))
+
+
+
+            
+
+
+
+
+
+
 
     def set_calculated_as_default(self):
         self.order = self.calculated_order
@@ -101,19 +144,21 @@ class RPQ:
             
 
 if __name__ == "__main__":
-    rpq = RPQ(4)
+    rpq = RPQ(1)
 
     rpq.print_order(rpq.order)
         
     rpq.calculate_Cmax()  
 
-    rpq.sortRQ()  
+    rpq.experimental_permutations_algorithm()
 
-    rpq.print_order(rpq.calculated_order)
+    # rpq.sortR()  
 
-    rpq.set_calculated_as_default()
+    # rpq.print_order(rpq.calculated_order)
 
-    rpq.calculate_Cmax()
+    # rpq.set_calculated_as_default()
+
+    # rpq.calculate_Cmax()
 
 
 
