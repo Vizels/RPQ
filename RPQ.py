@@ -33,8 +33,10 @@ class RPQ:
         t = czas zakończenia poprzedniej operacji,
         r = czas dojazdu aktualnej operacji
         """
+        is_print = False
 
         if order == None:
+            is_print = True
             order = self.order
 
         t = 0
@@ -47,7 +49,7 @@ class RPQ:
 
         self.Cmax = Cmax
 
-        if order == None:
+        if is_print:
             print(f"Cmax = {Cmax}")
 
         return Cmax
@@ -116,13 +118,13 @@ class RPQ:
                     new_order[i], new_order[i+1] = new_order[i+1], new_order[i]
                 else:
                     actual_Cmax = new_Cmax
-
-
-    
-
-
         
-        print(self.calculate_Cmax(new_order))
+        self.calculated_order = new_order
+
+        self.set_calculated_as_default()
+        
+        self.calculate_Cmax()
+
 
 
 
@@ -137,21 +139,25 @@ class RPQ:
     def set_calculated_as_default(self):
         self.order = self.calculated_order
 
-
-
-
         
             
+def count_sum():
+    sum = 0
+
+    for i in range(1, 5):
+        rpq = RPQ(i)
+            
+        rpq.experimental_permutations_algorithm()
+        
+        sum += rpq.calculate_Cmax()  
+
+    print(sum)
+
+
+
 
 if __name__ == "__main__":
-    rpq = RPQ(1)
-
-    rpq.print_order(rpq.order)
-        
-    rpq.calculate_Cmax()  
-
-    rpq.experimental_permutations_algorithm()
-
+    
     # rpq.sortR()  
 
     # rpq.print_order(rpq.calculated_order)
