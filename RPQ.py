@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import time
 
 class RPQ:
     def __init__ (self, data_set : int):
@@ -100,11 +101,39 @@ class RPQ:
 
         self.calculated_order = new_order
     
+    def Schrage(self):
+        dataR = self.sortR()
+        ready = []  # Initialize ready queue
+        t = 0       # Initialize time
+        order = []  # Initialize order list
+        last = min(dataR, key=lambda x: self.dataframe.loc[x, 'q'])
+        dataR.remove(last)
+        
+        while dataR or ready:
+            while dataR and self.dataframe.loc[dataR[0], 'r'] <= t:  # Add tasks whose release time has passed to the ready queue
+                ready.append(dataR.pop(0))
+
+            if not ready:  # If no tasks are ready, move time to the next available task's release time
+                t = self.dataframe.loc[dataR[0], 'r']
+                continue
+
+            # Choose the task with the highest q value from the ready queue
+            max_q_task = max(ready, key=lambda x: self.dataframe.loc[x, 'q'] - self.dataframe.loc[x, 'p'])
+            ready.remove(max_q_task)  # Remove chosen task from ready queue
+            order.append(max_q_task)  # Add chosen task to order list
+
+            t += self.dataframe.loc[max_q_task, 'p']
+
+        order.append(last)
+        
+        
+        return order
 
     def experimental_permutations_algorithm(self):
         # Complexity - O(n^3)
 
-        new_order = self.sortR()
+        #new_order = self.sortR()
+        new_order = self.Schrage()
 
         actual_Cmax = self.calculate_Cmax(new_order)
 
@@ -120,21 +149,11 @@ class RPQ:
                     actual_Cmax = new_Cmax
         
         self.calculated_order = new_order
+        print(new_order)
 
         self.set_calculated_as_default()
         
-        self.calculate_Cmax()
-
-
-
-
-            
-
-
-
-
-
-
+        #self.calculate_Cmax()
 
     def set_calculated_as_default(self):
         self.order = self.calculated_order
@@ -146,25 +165,28 @@ def count_sum():
 
     for i in range(1, 5):
         rpq = RPQ(i)
-            
-        rpq.experimental_permutations_algorithm()
         
-        sum += rpq.calculate_Cmax()  
+        time_start = time.time()
+        rpq.experimental_permutations_algorithm()
+        time_end = time.time()
+
+        print(f"Time: {time_end - time_start}")
+
+        sum += rpq.calculate_Cmax()
 
     print(sum)
 
 
-
+#KZW_wt_13-15_lab1
 
 if __name__ == "__main__":
     
-    # rpq.sortR()  
+    # rpq = RPQ(1)
 
-    # rpq.print_order(rpq.calculated_order)
+    count_sum()
 
-    # rpq.set_calculated_as_default()
-
-    # rpq.calculate_Cmax()
+    pass
+    
 
 
 
